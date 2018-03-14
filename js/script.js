@@ -220,17 +220,17 @@ function getTicketMasterConcerts(obj) {
 			}
 			scrollPage('#event-page');
 			setTimeout(resetInputs, 1500);
-			let data = [];
+			let ticketmasterData = [];
 			$('.show-container').empty();
 			let allEventsObj = response._embedded.events;
 			for (let tmData_i = 0; tmData_i < allEventsObj.length; tmData_i++) {
 				if (!allEventsObj[tmData_i]._embedded.venues[0].location) {
 					continue;
 				}
-				let eventObj = createEventObject(allEventsObj, tmData_i);
-				data.push(eventObj);
+				let eventObj = createTicketmasterEvent(allEventsObj[tmData_i]);
+				ticketmasterData.push(eventObj);
 			}
-			renderShowsOnDOM(data);
+			renderShowsOnDOM(ticketmasterData);
 		}
 	});
 }
@@ -256,10 +256,10 @@ function getYelpData(latLng, type, color) {
 			api_key:
 				'VFceJml03WRISuHBxTrIgwqvexzRGDKstoC48q7UrkABGVECg3W0k_EILnHPuHOpSoxrsX07TkDH3Sl9HtkHQH8AwZEmj6qatqtCYS0OS9Ul_A02RStw_TY7TpteWnYx'
 		},
-		success: function(data) {
-			for (let arrayIndex = 0; arrayIndex < data.businesses.length; arrayIndex++) {
-				let newObj = createYelpObj(data, arrayIndex);
-				arrayOfPlaces.push(newObj);
+		success: function(response) {
+			for (let businessIndex = 0; businessIndex < response.businesses.length; businessIndex++) {
+				let newPlace = createYelpRestaurant(response.businesses[businessIndex]);
+				arrayOfPlaces.push(newPlace);
 			}
 			createMarkers(arrayOfPlaces, color);
 		},
@@ -350,8 +350,6 @@ function renderShowsOnDOM(eventDetailsArray) {
  */
 
 function createShowDOMElement(eventDetails) {
-	console.log(eventDetails);
-
 	//Main container for listing
 	let listing = $('<div>', {
 		class: 'show-listing col-lg-6 col-md-6 col-xs-12 col-sm-12',
@@ -569,47 +567,45 @@ function populateEventSideBar(eventLocation) {
 }
 
 /***************************************************************************
- * createYelpObj - creates an object for each iteration of the yelp ajax call
+ * createYelpRestaurant - creates an object for each iteration of the yelp ajax call
  * @param{object, arrayIndex} event object and current Index
  * @return{object} per location
  */
-function createYelpObj(data, arrayIndex) {
-	var locationObject = data.businesses[arrayIndex];
-	let newObj = {};
-	newObj.name = locationObject.name;
-	newObj.address = locationObject.location.display_address.join('\n');
-	newObj.closed = locationObject.is_closed;
-	newObj.price = locationObject.price;
-	newObj.rating = locationObject.rating;
-	newObj.url = locationObject.url;
-	newObj.image = locationObject.image_url;
-	newObj.distance = locationObject.distance * 0.00062137;
-	newObj.phoneNumber = locationObject.display_phone;
-	newObj.latitude = locationObject.coordinates.latitude;
-	newObj.longitude = locationObject.coordinates.longitude;
-	return newObj;
+function createYelpRestaurant(currentBusiness) {
+	let newPlace = {};
+	newPlace.name = currentBusiness.name;
+	newPlace.address = currentBusiness.location.display_address.join('\n');
+	newPlace.closed = currentBusiness.is_closed;
+	newPlace.price = currentBusiness.price;
+	newPlace.rating = currentBusiness.rating;
+	newPlace.url = currentBusiness.url;
+	newPlace.image = currentBusiness.image_url;
+	newPlace.distance = currentBusiness.distance * 0.00062137;
+	newPlace.phoneNumber = currentBusiness.display_phone;
+	newPlace.latitude = currentBusiness.coordinates.latitude;
+	newPlace.longitude = currentBusiness.coordinates.longitude;
+	return newPlace;
 }
 
 /***************************************************************************
- * createEventObject - creates object with information from shows that will be used later in the app
- * @param{array of object} total info received
+ * createTicketmasterEvent - creates object with information from shows that will be used later in the app
+ * @param{object} all info received from ticketmaster about event
  * @return{object} per location
  */
-function createEventObject(event, index) {
-	var eventObject = event[index];
-	let object = {};
-	object.eventName = eventObject.name;
-	object.startTime = eventObject.dates.start.localTime;
-	object.latitude = eventObject._embedded.venues[0].location.latitude;
-	object.longitude = eventObject._embedded.venues[0].location.longitude;
-	object.zipCode = eventObject._embedded.venues[0].postalCode;
-	object.venueName = eventObject._embedded.venues[0].name;
-	object.ticketURL = eventObject.url;
-	object.venueUrl = eventObject._embedded.venues[0].url;
-	object.eventImage = eventObject.images[0];
-	object.eventDate = eventObject.dates.start.localDate;
-	object.note = eventObject.pleaseNote;
-	return object;
+function createTicketmasterEvent(ticketmasterEvent) {
+	let newEvent = {};
+	newEvent.eventName = ticketmasterEvent.name;
+	newEvent.startTime = ticketmasterEvent.dates.start.localTime;
+	newEvent.latitude = ticketmasterEvent._embedded.venues[0].location.latitude;
+	newEvent.longitude = ticketmasterEvent._embedded.venues[0].location.longitude;
+	newEvent.zipCode = ticketmasterEvent._embedded.venues[0].postalCode;
+	newEvent.venueName = ticketmasterEvent._embedded.venues[0].name;
+	newEvent.ticketURL = ticketmasterEvent.url;
+	newEvent.venueUrl = ticketmasterEvent._embedded.venues[0].url;
+	newEvent.eventImage = ticketmasterEvent.images[0];
+	newEvent.eventDate = ticketmasterEvent.dates.start.localDate;
+	newEvent.note = ticketmasterEvent.pleaseNote;
+	return newEvent;
 }
 
 /***************************************************************************
@@ -629,7 +625,7 @@ function searchErrorAlert() {
  * @return{none}
  */
 function scrollPage(element) {
-	$('html, body').animate(
+	$('html').animate(
 		{
 			scrollTop: $(element).offset().top - 60
 		},
