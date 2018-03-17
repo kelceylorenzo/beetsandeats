@@ -12,9 +12,14 @@ let infoWindow;
 function initializeApp() {
 	$('.submit-button').on('click', handleSearchButtonClick);
 	$('.start_button').on('click', handleStartButtonClick);
-	$('.event-month').on('click', removeDefaultSearch);
-	$('.event-day').on('click', removeDefaultSearch);
+	$('.event-month')
+		.on('click', removeDefaultSearch)
+		.on('keypress', checkMonthInput);
+	$('.event-day')
+		.on('click', removeDefaultSearch)
+		.on('keypress', checkDayInput);
 	$('.event-year').on('click', removeDefaultSearch);
+	$('#mobile-nav-bar li:nth-child(3)').hide();
 	// $(".geolocation-button").on("click", getUserLocation);
 	defaultDate();
 }
@@ -56,6 +61,31 @@ function defaultDate() {
  */
 function removeDefaultSearch() {
 	$(this).val('');
+}
+/***************************************************************************
+ * checkMonthInput - event listener that checks input to ensure valid month input is less than 12
+ * @param {event} object
+ * @return{object}
+ */
+
+function checkMonthInput(event) {
+	let currentMonthValue = String.fromCharCode(event.which);
+	let finalMonthValue = $(this).val() + currentMonthValue;
+	if (finalMonthValue > 12) {
+		event.preventDefault();
+	}
+}
+/***************************************************************************
+ * checkDayInput - event listener that checks input to ensure valid day input is less than 31
+ * @param {event} object
+ * @return{object}
+ */
+function checkDayInput(event) {
+	let currentDayValue = String.fromCharCode(event.which);
+	let finalDayValue = $(this).val() + currentDayValue;
+	if (finalDayValue > 31) {
+		event.preventDefault();
+	}
 }
 
 /***************************************************************************
@@ -214,10 +244,13 @@ function getTicketMasterConcerts(obj) {
 		method: 'get',
 		url: 'https://app.ticketmaster.com/discovery/v2/events.json?&apikey=2uJN7TQdB59TfTrrXsnGAJgrtKLrCdTi',
 		success: function(response) {
-			if (!response._embedded) {
+			if (!response.page.totalElements) {
 				searchErrorAlert();
+				checkForChildElements();
 				return;
 			}
+			$('.error-message').hide();
+			$('#mobile-nav-bar li:nth-child(3)').fadeIn();
 			scrollPage('#event-page');
 			setTimeout(resetInputs, 1500);
 			let ticketmasterData = [];
@@ -227,12 +260,25 @@ function getTicketMasterConcerts(obj) {
 				if (!allEventsObj[tmData_i]._embedded.venues[0].location) {
 					continue;
 				}
-				let eventObj = createTicketmasterEvent(allEventsObj[tmData_i]);
+				let eventObj = createTicketmasterEvent(allEventsObj, tmData_i);
 				ticketmasterData.push(eventObj);
 			}
 			renderShowsOnDOM(ticketmasterData);
+		},
+		error: function(error) {
+			searchErrorAlert();
+			checkForChildElements();
 		}
 	});
+}
+
+/***************************************************************************
+ * checks if Events had child elements to hide Search Link
+ */
+function checkForChildElements() {
+	if ($('.show-container').children().length === 0) {
+		$('#mobile-nav-bar li:nth-child(3)').fadeOut();
+	}
 }
 
 /***************************************************************************
@@ -310,8 +356,11 @@ function handleConcertClick(eventObj) {
 
 function openVenueWindow(place, marker) {
 	infoWindow.close();
+	console.log(place);
 	infoWindow = new google.maps.InfoWindow({
-		content: '<h4>' + place.venueName + '</h4>'
+		content: `<h4>${place.eventName}</h4>
+		<a href=${place.venueUrl} target="_blank"><h5>${place.venueName}<h5></a>
+		<p>${place.startTime}</p>`
 	});
 	infoWindow.open(map, marker);
 }
@@ -357,9 +406,9 @@ function createShowDOMElement(eventDetails) {
 			click: function() {
 				handleConcertClick(eventDetails);
 				scrollPage('#map');
-				let info = populateEventSideBar(eventDetails);
+				let showInfo = populateEventSideBar(eventDetails);
 				$('.eventInfo .sectionInfo').remove();
-				$('.eventInfo').append(info);
+				$('.eventInfo').append(showInfo);
 			}
 		}
 	});
@@ -388,7 +437,7 @@ function createShowDOMElement(eventDetails) {
 		.addClass('show-venue hidden-xs hidden-sm');
 	let mobileDetails = $('<p>').addClass('mobile-details hidden-md hidden-lg');
 
-	let showTime = 'TBA';
+	let showTime = eventDetails.startTime || 'TBA';
 
 	//Edit Time of Event
 	if (eventDetails.startTime) {
@@ -483,7 +532,6 @@ function getContentString(place) {
 		<p>${place.phoneNumber}</p>
 		<p>${place.distance.toFixed(2)} miles away from ${eventLocation}</p>
 		<p>${place.price}</p>`;
-
 	return contentString;
 }
 
@@ -539,52 +587,58 @@ function populateFoodSideBar(place) {
  * @param{object} object of event information
  * @returns [object] createddom element
  */
-function populateEventSideBar(eventLocation) {
+function populateEventSideBar(eventInfo) {
+	eventInfo.note = eventInfo.note || 'No added information';
 	let container = $('<div>').addClass('sectionInfo');
 	let image = $('<div>', {
 		class: 'eventImage',
 		css: {
-			'background-image': 'url("' + eventLocation.eventImage.url + '")'
+			'background-image': 'url("' + eventInfo.eventImage.url + '")'
 		}
 	});
 	let eventName = $('<h3>', {
-		text: eventLocation.eventName,
+		text: eventInfo.eventName,
 		class: 'map-event-name'
 	});
 	let venueName = $('<p>', {
-		html: 'Venue: ' + `<span class="eventLocation">${eventLocation.venueName}</span>`
+		html: 'Venue: ' + `<span class="eventInfo">${eventInfo.venueName}</span>`
+	});
+	let information = $('<p>', {
+		class: 'extra-event-info',
+		text: eventInfo.note
 	});
 	let time = $('<p>', {
-		text: 'Event Time: ' + eventLocation.startTime
+		text: 'Event Time: ' + eventInfo.startTime
 	});
 	let tickets = $('<a>', {
-		href: eventLocation.ticketURL,
+		href: eventInfo.ticketURL,
 		text: 'BUY TICKETS',
 		target: '_blank'
 	});
-	container.append(image, eventName, venueName, time, tickets);
+	container.append(image, eventName, venueName, time, tickets, information);
 	return container;
 }
 
 /***************************************************************************
- * createYelpRestaurant - creates an object for each iteration of the yelp ajax call
+ * createYelpObj - creates an object for each iteration of the Yelp ajax call
  * @param{object, arrayIndex} event object and current Index
  * @return{object} per location
  */
-function createYelpRestaurant(currentBusiness) {
-	let newPlace = {};
-	newPlace.name = currentBusiness.name;
-	newPlace.address = currentBusiness.location.display_address.join('\n');
-	newPlace.closed = currentBusiness.is_closed;
-	newPlace.price = currentBusiness.price;
-	newPlace.rating = currentBusiness.rating;
-	newPlace.url = currentBusiness.url;
-	newPlace.image = currentBusiness.image_url;
-	newPlace.distance = currentBusiness.distance * 0.00062137;
-	newPlace.phoneNumber = currentBusiness.display_phone;
-	newPlace.latitude = currentBusiness.coordinates.latitude;
-	newPlace.longitude = currentBusiness.coordinates.longitude;
-	return newPlace;
+function createYelpRestaurant(data, yelpDataIndex) {
+	var locationObject = data.businesses[yelpDataIndex];
+	let yelpBusiness = {};
+	yelpBusiness.name = locationObject.name;
+	yelpBusiness.address = locationObject.location.display_address.join('\n');
+	yelpBusiness.closed = locationObject.is_closed;
+	yelpBusiness.price = locationObject.price;
+	yelpBusiness.rating = locationObject.rating;
+	yelpBusiness.url = locationObject.url;
+	yelpBusiness.image = locationObject.image_url;
+	yelpBusiness.distance = locationObject.distance * 0.00062137;
+	yelpBusiness.phoneNumber = locationObject.display_phone;
+	yelpBusiness.latitude = locationObject.coordinates.latitude;
+	yelpBusiness.longitude = locationObject.coordinates.longitude;
+	return yelpBusiness;
 }
 
 /***************************************************************************
@@ -592,20 +646,42 @@ function createYelpRestaurant(currentBusiness) {
  * @param{object} all info received from ticketmaster about event
  * @return{object} per location
  */
-function createTicketmasterEvent(ticketmasterEvent) {
-	let newEvent = {};
-	newEvent.eventName = ticketmasterEvent.name;
-	newEvent.startTime = ticketmasterEvent.dates.start.localTime;
-	newEvent.latitude = ticketmasterEvent._embedded.venues[0].location.latitude;
-	newEvent.longitude = ticketmasterEvent._embedded.venues[0].location.longitude;
-	newEvent.zipCode = ticketmasterEvent._embedded.venues[0].postalCode;
-	newEvent.venueName = ticketmasterEvent._embedded.venues[0].name;
-	newEvent.ticketURL = ticketmasterEvent.url;
-	newEvent.venueUrl = ticketmasterEvent._embedded.venues[0].url;
-	newEvent.eventImage = ticketmasterEvent.images[0];
-	newEvent.eventDate = ticketmasterEvent.dates.start.localDate;
-	newEvent.note = ticketmasterEvent.pleaseNote;
-	return newEvent;
+function createTicketmasterEvent(events, ticketmasterDataIndex) {
+	var eventObject = events[ticketmasterDataIndex];
+	let venueObject = {};
+	venueObject.eventName = eventObject.name;
+	venueObject.startTime = convertMilitaryTime(eventObject.dates.start.localTime);
+	venueObject.latitude = eventObject._embedded.venues[0].location.latitude;
+	venueObject.longitude = eventObject._embedded.venues[0].location.longitude;
+	venueObject.zipCode = eventObject._embedded.venues[0].postalCode;
+	venueObject.venueName = eventObject._embedded.venues[0].name;
+	venueObject.ticketURL = eventObject.url;
+	venueObject.venueUrl = eventObject._embedded.venues[0].url;
+	venueObject.eventImage = eventObject.images[0];
+	venueObject.eventDate = eventObject.dates.start.localDate;
+	venueObject.note = eventObject.pleaseNote;
+	return venueObject;
+}
+
+/***************************************************************************
+ * Converts to standard time
+ * @param {string} time military time
+ * @return {string} time
+ */
+function convertMilitaryTime(time) {
+	var showTime = 'TBA';
+
+	if (time) {
+		showTime = parseInt(time.slice(0, 2));
+		if (showTime > 12) {
+			let showHour = showTime - 12;
+			showTime = `${showHour}:${time.slice(3, 5)} PM`;
+		} else {
+			showTime = `${time.slice(0, 5)} AM`;
+		}
+	}
+
+	return showTime;
 }
 
 /***************************************************************************
@@ -634,7 +710,7 @@ function scrollPage(element) {
 }
 
 /***************************************************************************
- * Listens for window scroll and collpase menu
+ * Event listener for window scroll and collapses menu
  */
 $(window).on('scroll', function() {
 	$('.navbar-collapse.collapse').removeClass('in');
