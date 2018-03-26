@@ -301,7 +301,7 @@ function getYelpData(latLng, type, color) {
 			// 	'VFceJml03WRISuHBxTrIgwqvexzRGDKstoC48q7UrkABGVECg3W0k_EILnHPuHOpSoxrsX07TkDH3Sl9HtkHQH8AwZEmj6qatqtCYS0OS9Ul_A02RStw_TY7TpteWnYx'
 		},
 		success: function (response) {
-			for (let businessIndex = 0; businessIndex < response.businesses.length; businessIndex++) {
+			for (let businessIndex = 0; businessIndex < response.length; businessIndex++) {
 				let newPlace = createYelpRestaurant(response, businessIndex);
 				arrayOfPlaces.push(newPlace);
 			}
@@ -621,7 +621,7 @@ function populateEventSideBar(eventInfo) {
  * @return{object} per location
  */
 function createYelpRestaurant(data, yelpDataIndex) {
-	var locationObject = data.businesses[yelpDataIndex];
+	var locationObject = data[yelpDataIndex];
 	let yelpBusiness = {};
 	yelpBusiness.name = locationObject.name;
 	yelpBusiness.address = locationObject.location.display_address.join('\n');
