@@ -10,16 +10,16 @@ let infoWindow;
  * @returns  {undefined}
  */
 function initializeApp() {
-	$('.submit-button').on('click', handleSearchButtonClick);
-	$('.start_button').on('click', handleStartButtonClick);
-	$('.event-month')
-		.on('click', removeDefaultSearch)
-		.on('keypress', checkMonthInput);
-	$('.event-day')
-		.on('click', removeDefaultSearch)
-		.on('keypress', checkDayInput);
-	$('.event-year').on('click', removeDefaultSearch);
-	$('#mobile-nav-bar li:nth-child(3)').hide();
+	$(".submit-button").on("click", handleSearchButtonClick);
+	$(".start_button").on("click", handleStartButtonClick);
+	$(".event-month")
+		.on("click", removeDefaultSearch)
+		.on("keypress", checkMonthInput);
+	$(".event-day")
+		.on("click", removeDefaultSearch)
+		.on("keypress", checkDayInput);
+	$(".event-year").on("click", removeDefaultSearch);
+	$("#mobile-nav-bar li:nth-child(3)").hide();
 	// $(".geolocation-button").on("click", getUserLocation);
 	defaultDate();
 }
@@ -31,7 +31,7 @@ function initializeApp() {
  */
 function renderInitialMap() {
 	let usa = { lat: 33.9584404, lng: -118.3941214 };
-	map = new google.maps.Map(document.getElementById('map'), {
+	map = new google.maps.Map(document.getElementById("map"), {
 		center: usa,
 		zoom: 3
 	});
@@ -49,9 +49,9 @@ function defaultDate() {
 	var day = currentDay.getDate();
 	var year = currentDay.getFullYear();
 
-	$('.event-month').val(month);
-	$('.event-day').val(day);
-	$('.event-year').val(year);
+	$(".event-month").val(month);
+	$(".event-day").val(day);
+	$(".event-year").val(year);
 }
 
 /***************************************************************************
@@ -60,7 +60,7 @@ function defaultDate() {
  * @return {none}
  */
 function removeDefaultSearch() {
-	$(this).val('');
+	$(this).val("");
 }
 /***************************************************************************
  * checkMonthInput - event listener that checks input to ensure valid month input is less than 12
@@ -95,7 +95,7 @@ function checkDayInput(event) {
  * @calls: scrollPage
  */
 function handleStartButtonClick() {
-	scrollPage('#search-page');
+	scrollPage("#search-page");
 }
 
 /***************************************************************************
@@ -133,13 +133,11 @@ function getUserLocation() {
 		var geocoder = new google.maps.Geocoder();
 		var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 		geocoder.geocode({ latLng: location }, function(results, status) {
-			console.log('geolocation results: ', results);
 			if (status == google.maps.GeocoderStatus.OK) {
-				var comma = results[3].formatted_address.indexOf(',');
-				var city = results[3].formatted_address.slice(0, comma);
-				var state = results[3].formatted_address.slice(comma + 2, comma + 4);
-				$('.city-name').val(city);
-				$('.state-code').val(state);
+				var city = results[0].address_components[3].long_name;
+				var state = results[0].address_components[5].short_name;
+				$(".city-name").val(city);
+				$(".state-code").val(state);
 			}
 		});
 	});
@@ -152,7 +150,7 @@ function getUserLocation() {
  * @calls: none
  */
 function getCity() {
-	return $('.city-name').val();
+	return $(".city-name").val();
 }
 
 /***************************************************************************
@@ -162,7 +160,7 @@ function getCity() {
  * @calls: none
  */
 function getState() {
-	return $('.state-code').val();
+	return $(".state-code").val();
 }
 
 /***************************************************************************
@@ -173,20 +171,20 @@ function getState() {
  */
 function getEventDate() {
 	let date = {};
-	let year = $('.event-year').val();
-	let month = $('.event-month').val();
-	let day = $('.event-day').val();
+	let year = $(".event-year").val();
+	let month = $(".event-month").val();
+	let day = $(".event-day").val();
 
-	if ($('.event-month').val().length === 1) {
-		month = `0${$('.event-month').val()}`;
+	if ($(".event-month").val().length === 1) {
+		month = `0${$(".event-month").val()}`;
 	} else {
-		month = $('.event-month').val();
+		month = $(".event-month").val();
 	}
 
-	if ($('.event-day').val().length === 1) {
-		day = `0${$('.event-day').val()}`;
+	if ($(".event-day").val().length === 1) {
+		day = `0${$(".event-day").val()}`;
 	} else {
-		day = $('.event-day').val();
+		day = $(".event-day").val();
 	}
 
 	let startDay = new Date(year, month - 1, day, 0, 0, 0);
@@ -200,9 +198,9 @@ function getEventDate() {
 	endDay = new Date(utcEndDay);
 
 	date.start = startDay.toISOString().slice(0, -5);
-	date.start += 'Z';
+	date.start += "Z";
 	date.end = endDay.toISOString().slice(0, -5);
-	date.end += 'Z';
+	date.end += "Z";
 
 	return date;
 }
@@ -214,14 +212,14 @@ function getEventDate() {
  * @calls: inputCityCheck, getStateFromDropDown, getEventDate
  */
 function resetInputs() {
-	$('.city-name').val('');
-	$('.state-code').val('');
-	$('.event-year').val('');
-	$('.event-month').val('');
-	$('.event-day').val('');
-	$('.error-message')
+	$(".city-name").val("");
+	$(".state-code").val("");
+	$(".event-year").val("");
+	$(".event-month").val("");
+	$(".event-day").val("");
+	$(".error-message")
 		.empty()
-		.removeClass('bg-danger');
+		.removeClass("bg-danger");
 }
 
 /***************************************************************************
@@ -231,7 +229,7 @@ function resetInputs() {
  */
 function getTicketMasterConcerts(obj) {
 	let data_object = {
-		api_key: '2uJN7TQdB59TfTrrXsnGAJgrtKLrCdTi',
+		api_key: "2uJN7TQdB59TfTrrXsnGAJgrtKLrCdTi",
 		city: obj.city,
 		stateCode: obj.state,
 		startDateTime: obj.date.start,
@@ -240,21 +238,21 @@ function getTicketMasterConcerts(obj) {
 	};
 	$.ajax({
 		data: data_object,
-		dataType: 'json',
-		method: 'get',
-		url: 'https://app.ticketmaster.com/discovery/v2/events.json?&apikey=2uJN7TQdB59TfTrrXsnGAJgrtKLrCdTi',
+		dataType: "json",
+		method: "get",
+		url: "https://app.ticketmaster.com/discovery/v2/events.json?&apikey=2uJN7TQdB59TfTrrXsnGAJgrtKLrCdTi",
 		success: function(response) {
 			if (!response.page.totalElements) {
 				searchErrorAlert();
 				checkForChildElements();
 				return;
 			}
-			$('.error-message').hide();
-			$('#mobile-nav-bar li:nth-child(3)').fadeIn();
-			scrollPage('#event-page');
+			$(".error-message").hide();
+			$("#mobile-nav-bar li:nth-child(3)").fadeIn();
+			scrollPage("#event-page");
 			setTimeout(resetInputs, 1500);
 			let ticketmasterData = [];
-			$('.show-container').empty();
+			$(".show-container").empty();
 			let allEventsObj = response._embedded.events;
 			for (let tmData_i = 0; tmData_i < allEventsObj.length; tmData_i++) {
 				if (!allEventsObj[tmData_i]._embedded.venues[0].location) {
@@ -276,8 +274,8 @@ function getTicketMasterConcerts(obj) {
  * checks if Events had child elements to hide Search Link
  */
 function checkForChildElements() {
-	if ($('.show-container').children().length === 0) {
-		$('#mobile-nav-bar li:nth-child(3)').fadeOut();
+	if ($(".show-container").children().length === 0) {
+		$("#mobile-nav-bar li:nth-child(3)").fadeOut();
 	}
 }
 
@@ -291,26 +289,26 @@ function checkForChildElements() {
 function getYelpData(latLng, type, color) {
 	let arrayOfPlaces = [];
 	let ajaxConfig = {
-		dataType: 'json',
-		url: 'http://danielpaschal.com/yelpproxy.php',
-		method: 'GET',
+		dataType: "json",
+		url: "http://danielpaschal.com/yelpproxy.php",
+		method: "GET",
 		data: {
 			latitude: latLng.lat,
 			longitude: latLng.lng,
 			term: type,
 			radius: 40000,
 			api_key:
-				'VFceJml03WRISuHBxTrIgwqvexzRGDKstoC48q7UrkABGVECg3W0k_EILnHPuHOpSoxrsX07TkDH3Sl9HtkHQH8AwZEmj6qatqtCYS0OS9Ul_A02RStw_TY7TpteWnYx'
+				"VFceJml03WRISuHBxTrIgwqvexzRGDKstoC48q7UrkABGVECg3W0k_EILnHPuHOpSoxrsX07TkDH3Sl9HtkHQH8AwZEmj6qatqtCYS0OS9Ul_A02RStw_TY7TpteWnYx"
 		},
 		success: function(response) {
 			for (let businessIndex = 0; businessIndex < response.businesses.length; businessIndex++) {
-				let newPlace = createYelpRestaurant(response.businesses[businessIndex]);
+				let newPlace = createYelpRestaurant(response, businessIndex);
 				arrayOfPlaces.push(newPlace);
 			}
 			createMarkers(arrayOfPlaces, color);
 		},
 		error: function() {
-			console.error('The server returned no information.');
+			console.error("The server returned no information.");
 		}
 	};
 	$.ajax(ajaxConfig);
@@ -327,7 +325,7 @@ function handleConcertClick(eventObj) {
 		lat: parseFloat(eventObj.latitude),
 		lng: parseFloat(eventObj.longitude)
 	};
-	map = new google.maps.Map(document.getElementById('map'), {
+	map = new google.maps.Map(document.getElementById("map"), {
 		center: latLng,
 		zoom: 16
 	});
@@ -335,17 +333,17 @@ function handleConcertClick(eventObj) {
 		position: latLng,
 		map: map,
 		//icon provided by freepik.com
-		icon: 'images/stage.png'
+		icon: "images/stage.png"
 	});
 
-	marker.addListener('click', function() {
+	marker.addListener("click", function() {
 		openVenueWindow(eventObj, marker);
 	});
 
-	$('.foodInfo  .sectionInfo').remove();
+	$(".foodInfo  .sectionInfo").remove();
 	//icons provided by freepik.com
-	getYelpData(latLng, 'bar', 'images/drink.png');
-	getYelpData(latLng, 'food', 'images/food.png');
+	getYelpData(latLng, "bar", "images/drink.png");
+	getYelpData(latLng, "food", "images/food.png");
 }
 /***************************************************************************
  * openVenueWindow - opens marker window for venue marker
@@ -375,22 +373,22 @@ function openVenueWindow(place, marker) {
 function renderShowsOnDOM(eventDetailsArray) {
 	let row;
 	let allRows = [];
-	let title = $('<div>', {
-		class: 'show_tag_line'
+	let title = $("<div>", {
+		class: "show_tag_line"
 	});
-	let titleText = $('<span>').text('Choose Your Event');
+	let titleText = $("<span>").text("Choose Your Event");
 	title.append(titleText);
 
 	for (let index = 0; index < eventDetailsArray.length; index++) {
 		if (index % 2 === 0) {
-			row = $('<div>').addClass('row');
+			row = $("<div>").addClass("row");
 			row.append(createShowDOMElement(eventDetailsArray[index]));
 		} else {
 			row.append(createShowDOMElement(eventDetailsArray[index]));
 			allRows.push(row);
 		}
 	}
-	$('.show-container').append(title, allRows);
+	$(".show-container").append(title, allRows);
 }
 /***************************************************************************
  * createShowDOMElement - create DOM elements for each show in list, update the on-page list of shows
@@ -400,55 +398,44 @@ function renderShowsOnDOM(eventDetailsArray) {
 
 function createShowDOMElement(eventDetails) {
 	//Main container for listing
-	let listing = $('<div>', {
-		class: 'show-listing col-lg-6 col-md-6 col-xs-12 col-sm-12',
+	let listing = $("<div>", {
+		class: "show-listing col-lg-6 col-md-6 col-xs-12 col-sm-12",
 		on: {
 			click: function() {
 				handleConcertClick(eventDetails);
-				scrollPage('#map');
+				scrollPage("#map");
 				let showInfo = populateEventSideBar(eventDetails);
-				$('.eventInfo .sectionInfo').remove();
-				$('.eventInfo').append(showInfo);
+				$(".eventInfo .sectionInfo").remove();
+				$(".eventInfo").append(showInfo);
 			}
 		}
 	});
 
 	//Bootstrap Row
-	let listingRow = $('<div>').addClass('listing row');
+	let listingRow = $("<div>").addClass("listing row");
 
 	//Event Image Column
-	let artistImage = $('<div>').addClass('artist col-lg-6 col-md-6 col-xs-6 col-sm-6');
-	let imageDiv = $('<div>').addClass('image-div');
-	let image = $('<img>')
-		.attr('src', eventDetails.eventImage.url)
-		.addClass('show-image');
+	let artistImage = $("<div>").addClass("artist col-lg-6 col-md-6 col-xs-6 col-sm-6");
+	let imageDiv = $("<div>").addClass("image-div");
+	let image = $("<img>")
+		.attr("src", eventDetails.eventImage.url)
+		.addClass("show-image");
 
 	//Event Info Column
-	let showInfo = $('<div>').addClass('show-info col-lg-6 col-md-6 col-xs-6 col-sm-6');
+	let showInfo = $("<div>").addClass("show-info col-lg-6 col-md-6 col-xs-6 col-sm-6");
 
 	//Event Details
-	let showName = $('<p>')
+	let showName = $("<p>")
 		.text(eventDetails.eventName)
-		.addClass('show-name');
-	let showDetails = $('<p>').addClass('show-details hidden-xs hidden-sm');
+		.addClass("show-name");
+	let showDetails = $("<p>").addClass("show-details hidden-xs hidden-sm");
 	let showDate = `${eventDetails.eventDate.slice(5)}-${eventDetails.eventDate.slice(0, 4)}`;
-	let showVenue = $('<p>')
+	let showVenue = $("<p>")
 		.text(`Venue: ${eventDetails.venueName}`)
-		.addClass('show-venue hidden-xs hidden-sm');
-	let mobileDetails = $('<p>').addClass('mobile-details hidden-md hidden-lg');
+		.addClass("show-venue hidden-xs hidden-sm");
+	let mobileDetails = $("<p>").addClass("mobile-details hidden-md hidden-lg");
 
-	let showTime = eventDetails.startTime || 'TBA';
-
-	//Edit Time of Event
-	if (eventDetails.startTime) {
-		showTime = parseInt(eventDetails.startTime.slice(0, 2));
-		if (showTime > 12) {
-			let showHour = showTime - 12;
-			showTime = `${showHour}:${eventDetails.startTime.slice(3, 5)} PM`;
-		} else {
-			showTime = `${eventDetails.startTime.slice(0, 5)} AM`;
-		}
-	}
+	let showTime = eventDetails.startTime || "TBA";
 
 	showDetails.text(`Date & Time: ${showDate}, ${showTime}`);
 	mobileDetails.text(`${eventDetails.venueName} - ${showDate}, ${showTime}`);
@@ -491,7 +478,7 @@ function renderMarker(place, color) {
 		icon: color
 	});
 
-	marker.addListener('click', function() {
+	marker.addListener("click", function() {
 		openWindow(place, marker);
 	});
 }
@@ -508,9 +495,9 @@ function openWindow(place, marker) {
 	});
 
 	infoWindow.open(map, marker);
-	$('.foodInfo > .sectionInfo').remove(); //empty the existing info
+	$(".foodInfo > .sectionInfo").remove(); //empty the existing info
 	let info = populateFoodSideBar(place);
-	$('.foodInfo').append(info);
+	$(".foodInfo").append(info);
 }
 
 /***************************************************************************
@@ -519,11 +506,11 @@ function openWindow(place, marker) {
  * @returns [string] content stringified
  */
 function getContentString(place) {
-	var eventLocation = $('span.eventLocation').text();
+	var eventLocation = $("span.eventLocation").text();
 	if (place.closed === false) {
-		place.closed = 'Open';
+		place.closed = "Open";
 	} else {
-		place.closed = 'Closed';
+		place.closed = "Closed";
 	}
 	let contentString = `<a href=${place.url} target="_blank">
 			<h4>${place.name}</h4>
@@ -542,58 +529,43 @@ function getContentString(place) {
  */
 
 function populateFoodSideBar(place) {
-	let container = $('<div>').addClass('sectionInfo');
-	let image = $('<div>', {
-		class: 'foodImage',
+	let container = $("<div>").addClass("sectionInfo");
+	let image = $("<div>", {
+		class: "foodImage",
 		css: {
-			'background-image': 'url("' + place.image + '")'
+			"background-image": 'url("' + place.image + '")'
 		}
 	});
-	let restaurantHeader = $('<div>').addClass('restaurant-header');
-	let restaurantBody = $('<div>').addClass('restaurant-body');
-	let name = $('<h3>', {
+	let restaurantHeader = $("<div>").addClass("restaurant-header");
+	let restaurantBody = $("<div>").addClass("restaurant-body");
+	let name = $("<h3>", {
 		text: place.name,
-		class: 'map-food-name'
+		class: "map-food-name"
 	});
-	let number = $('<p>', {
-		text: place.phoneNumber
-	});
-	let address = $('<p>', {
-		text: place.address
-	});
-	let rating = $('<p>', {
-		text: 'Rating: ' + place.rating
-	});
-	let price = $('<p>', {
-		text: 'Price: ' + place.price
-	});
-	let distance = $('<p>', {
-		text: place.distance.toFixed(2) + ' miles away from venue'
-	});
-	let yelp = $('<a>', {
+	let yelp = $("<a>", {
 		href: place.url,
-		text: 'WEBSITE',
-		target: '_blank',
+		text: "WEBSITE",
+		target: "_blank",
 		css: {
-			display: 'block',
-			'text-align': 'center',
-			'font-size': '18px'
+			display: "block",
+			"text-align": "center",
+			"font-size": "18px"
 		}
 	});
-	let distance = $('<p>', {
-		text: place.distance.toFixed(2) + ' miles away from venue'
+	let distance = $("<p>", {
+		text: place.distance.toFixed(2) + " miles away from venue"
 	});
-	let address = $('<p>', {
+	let address = $("<p>", {
 		text: place.address
 	});
-	let number = $('<p>', {
+	let number = $("<p>", {
 		text: place.phoneNumber
 	});
-	let rating = $('<p>', {
-		text: 'Rating: ' + place.rating + '/5'
+	let rating = $("<p>", {
+		text: "Rating: " + place.rating + "/5"
 	});
-	let price = $('<p>', {
-		text: 'Price: ' + place.price
+	let price = $("<p>", {
+		text: "Price: " + place.price
 	});
 
 	restaurantHeader.append(image, name, yelp);
@@ -608,34 +580,34 @@ function populateFoodSideBar(place) {
  * @returns [object] createddom element
  */
 function populateEventSideBar(eventInfo) {
-	eventInfo.note = eventInfo.note || 'No added information';
-	let container = $('<div>').addClass('sectionInfo');
-	let eventHeader = $('<div>').addClass('event-header');
-	let eventBody = $('<div>').addClass('event-body');
-	let image = $('<div>', {
-		class: 'eventImage',
+	eventInfo.note = eventInfo.note || "No added information";
+	let container = $("<div>").addClass("sectionInfo");
+	let eventHeader = $("<div>").addClass("event-header");
+	let eventBody = $("<div>").addClass("event-body");
+	let image = $("<div>", {
+		class: "eventImage",
 		css: {
-			'background-image': 'url("' + eventInfo.eventImage.url + '")'
+			"background-image": 'url("' + eventInfo.eventImage.url + '")'
 		}
 	});
-	let eventName = $('<h3>', {
+	let eventName = $("<h3>", {
 		text: eventInfo.eventName,
-		class: 'map-event-name'
+		class: "map-event-name"
 	});
-	let venueName = $('<p>', {
-		html: 'Venue: ' + `<span class="eventInfo">${eventInfo.venueName}</span>`
+	let venueName = $("<p>", {
+		html: "Venue: " + `<span class="eventInfo">${eventInfo.venueName}</span>`
 	});
-	let information = $('<p>', {
-		class: 'extra-event-info',
+	let information = $("<p>", {
+		class: "extra-event-info",
 		text: eventInfo.note
 	});
-	let time = $('<p>', {
-		text: 'Event Time: ' + eventInfo.startTime
+	let time = $("<p>", {
+		text: "Event Time: " + eventInfo.startTime
 	});
-	let tickets = $('<a>', {
+	let tickets = $("<a>", {
 		href: eventInfo.ticketURL,
-		text: 'BUY TICKETS',
-		target: '_blank'
+		text: "BUY TICKETS",
+		target: "_blank"
 	});
 	eventHeader.append(image, eventName);
 	eventBody.append(venueName, time, tickets, information);
@@ -652,7 +624,7 @@ function createYelpRestaurant(data, yelpDataIndex) {
 	var locationObject = data.businesses[yelpDataIndex];
 	let yelpBusiness = {};
 	yelpBusiness.name = locationObject.name;
-	yelpBusiness.address = locationObject.location.display_address.join('\n');
+	yelpBusiness.address = locationObject.location.display_address.join("\n");
 	yelpBusiness.closed = locationObject.is_closed;
 	yelpBusiness.price = locationObject.price;
 	yelpBusiness.rating = locationObject.rating;
@@ -666,8 +638,8 @@ function createYelpRestaurant(data, yelpDataIndex) {
 }
 
 /***************************************************************************
- * createTicketmasterEvent - creates object with information from shows that will be used later in the app
- * @param{object} all info received from ticketmaster about event
+ * createEventObject - creates object with information from shows that will be used later in the app
+ * @param{array of object} total info received
  * @return{object} per location
  */
 function createTicketmasterEvent(events, ticketmasterDataIndex) {
@@ -693,7 +665,7 @@ function createTicketmasterEvent(events, ticketmasterDataIndex) {
  * @return {string} time
  */
 function convertMilitaryTime(time) {
-	var showTime = 'TBA';
+	var showTime = "TBA";
 
 	if (time) {
 		showTime = parseInt(time.slice(0, 2));
@@ -714,9 +686,9 @@ function convertMilitaryTime(time) {
  * @return none
  */
 function searchErrorAlert() {
-	$('.error-message')
-		.text('No search results found. Please check the spelling of your city and/or specified date.')
-		.addClass('bg-danger');
+	$(".error-message")
+		.text("No search results found. Please check the spelling of your city and/or specified date.")
+		.addClass("bg-danger");
 }
 
 /***************************************************************************
@@ -725,7 +697,7 @@ function searchErrorAlert() {
  * @return{none}
  */
 function scrollPage(element) {
-	$('html').animate(
+	$("html").animate(
 		{
 			scrollTop: $(element).offset().top - 60
 		},
@@ -736,9 +708,9 @@ function scrollPage(element) {
 /***************************************************************************
  * Event listener for window scroll and collapses menu
  */
-$(window).on('scroll', function() {
-	$('.navbar-collapse.collapse').removeClass('in');
-	$('.navbar-collapse.collapse').attr('aria-expanded', false);
+$(window).on("scroll", function() {
+	$(".navbar-collapse.collapse").removeClass("in");
+	$(".navbar-collapse.collapse").attr("aria-expanded", false);
 
 	return false;
 });
@@ -750,6 +722,6 @@ $(window).on('scroll', function() {
  * @calls: none
  */
 $(document).scroll(function() {
-	let $nav = $('.navbar-default');
-	$nav.toggleClass('scrolled', $(this).scrollTop() > $nav.height());
+	let $nav = $(".navbar-default");
+	$nav.toggleClass("scrolled", $(this).scrollTop() > $nav.height());
 });
